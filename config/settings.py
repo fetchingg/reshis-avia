@@ -2,7 +2,7 @@
 import os
 import secrets
 from pathlib import Path
-
+from urllib.parse import urlparse, parse_qsl, unquote
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,10 +54,30 @@ TEMPLATES = [{
     ]},
 }]
 WSGI_APPLICATION = "config.wsgi.application"
-DATABASES = {"default": {
-    "ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3",
-    "OPTIONS": {"timeout": 20},
-}}
+database_url = os.environ.get("DATABASE_URL")
+
+if database_url:
+    db = urlparse(database_url)
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": db.path.lstrip("/"),
+            "USER": unquote(db.username),
+            "PASSWORD": unquote(db.password),
+            "HOST": db.hostname,
+            "PORT": db.port or 5432,
+            "OPTIONS": dict(parse_qsl(db.query)),
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+            "OPTIONS": {"timeout": 20},
+        }
+    }
 AUTH_USER_MODEL = "accounts.User"
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator", "OPTIONS": {"user_attributes": ["name", "email"]}},
