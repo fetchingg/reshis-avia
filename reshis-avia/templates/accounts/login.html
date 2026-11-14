@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}Вход{% endblock %}
+{% block scripts %}<script src="{% static 'js/auth.js' %}" defer></script>{% endblock %}
+{% block content %}
+<section class="auth-layout"><div class="auth-intro"><p class="eyebrow"><span class="status-dot"></span> ЛИЧНЫЕ РАСЧЕТЫ</p><h1>С возвращением,<br><span>мы ждали.</span></h1><p>После входа в аккаунт вам будет <br>доступен просмотр истории</p><a class="back-link" href="{% url 'calculator' %}">← Вернуться к калькулятору</a><div class="auth-decoration" aria-hidden="true"><span>10%</span><span>50%</span><span>90%</span></div></div>
+<div class="auth-card"><p class="eyebrow">ПРОДОЛЖИМ ПЛАНИРОВАТЬ</p><h2>Войти в аккаунт</h2><p class="auth-subtitle">Чтобы вернуться к сохранённым расчётам.</p><div class="alert alert-error" id="auth-error" role="alert" hidden></div>
+<form id="auth-form" data-action="login" novalidate>{% csrf_token %}
+  <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" maxlength="254" required aria-describedby="email-error" placeholder="you@example.com"><span class="field-error" id="email-error"></span></div>
+  <div class="field"><label for="password">Пароль</label><div class="password-input"><input id="password" name="password" type="password" autocomplete="current-password" maxlength="128" required aria-describedby="password-error"><button class="password-toggle" type="button" data-target="password" aria-label="Показать пароль" aria-pressed="false">Показать</button></div><span class="field-error" id="password-error"></span></div>
+  <label class="checkbox"><input type="checkbox" id="remember" name="remember"> Запомнить меня на 14 дней</label>
+  <button class="button button-primary auth-submit" type="submit">Войти <span aria-hidden="true">↗</span></button>
+</form><p class="auth-switch">Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p></div></section>
+{% endblock %}
