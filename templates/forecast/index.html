@@ -1,0 +1,46 @@
+{% extends 'base.html' %}{% load static %}
+{% block scripts %}<script src="{% static 'vendor/chart.umd.min.js' %}" defer></script><script src="{% static 'js/dropdown.js' %}" defer></script><script src="{% static 'js/forecast.js' %}?v=2" defer></script>{% endblock %}
+{% block content %}
+<section class="hero">
+  <div><p class="eyebrow"><span class="status-dot"></span> ПЛАНИРОВАНИЕ ПРОДАЖ</p>
+    <h1>Сколько билетов купят<br><span>по вашей цене?</span></h1>
+    <p class="hero-description">Выберите рейс и стоимость билета<br>Посмотрите, как цена влияет на спрос и ожидаемые продажи</p>
+  </div>
+  <aside class="dataset-card"><span class="mini-icon" aria-hidden="true">▤</span><div><strong>Сезонный прогноз</strong><p id="dataset-summary">Загружаем расписание…</p></div></aside>
+</section>
+<section class="calculator" aria-labelledby="form-heading">
+  <div class="section-top"><h2 id="form-heading"><span class="step-number">01</span> Параметры рейса</h2><span class="section-hint">Расчет по медиане прогноза</span></div>
+  <div class="alert alert-error" id="error-box" role="alert" hidden></div>
+  <form id="forecast-form" novalidate>
+    {% csrf_token %}
+    <div class="form-grid">
+      <div class="field"><label for="origin">Откуда</label><select id="origin" name="origin" required disabled aria-describedby="origin-error"><option>Загрузка…</option></select><span class="field-error" id="origin-error"></span></div>
+      <div class="field"><label for="destination">Куда</label><select id="destination" name="destination" required disabled aria-describedby="destination-error"><option>Загрузка…</option></select><span class="field-error" id="destination-error"></span></div>
+      <div class="field"><label for="date">Дата вылета</label><input id="date" name="date" type="date" required disabled aria-describedby="date-error"><span class="field-error" id="date-error"></span></div>
+      <div class="field"><label for="price">Цена билета, ₽</label><div class="price-input"><input id="price" name="price" type="number" min="0" step="any" inputmode="decimal" required disabled aria-describedby="price-hint price-error"><span aria-hidden="true">₽</span></div><span class="field-error" id="price-error"></span></div>
+      <button class="button button-primary calculate-button" id="calculate" type="submit" disabled><span>Рассчитать</span><span aria-hidden="true">↗</span></button>
+    </div>
+    <div class="form-bottom"><p id="price-hint">Базовая цена появится после загрузки данных</p><button type="button" class="text-button" id="reset-price" disabled>Вернуть базовую цену</button></div>
+  </form>
+</section>
+<section class="results-section" aria-labelledby="results-heading" aria-busy="false" id="results-section">
+  <div class="section-top result-heading"><h2 id="results-heading"><span class="step-number">02</span> Прогноз продаж</h2><span id="result-context" class="section-hint">Сначала выберите параметры</span></div>
+  <div class="empty-state" id="empty-state"><div class="empty-illustration" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i></i></div><p>Нажмите «Рассчитать», чтобы увидеть прогноз</p></div>
+  <div id="result" hidden>
+    <div class="result-cards" aria-live="polite" aria-atomic="true">
+      <article class="metric-card"><div class="metric-label">Вместимость рейса <span aria-hidden="true">◫</span></div><div class="metric-value" id="seats-value">—</div><p>мест по данным прогноза</p></article>
+      <article class="metric-card"><div class="metric-label">Хотят купить <span aria-hidden="true">♧</span></div><div class="metric-value" id="wish-value">—</div><p>медианный спрос при этой цене</p></article>
+      <article class="metric-card metric-primary"><div class="metric-label">Прогноз продаж <span aria-hidden="true">↗</span></div><div class="metric-value" id="sold-value">—</div><p>билетов с учетом вместимости</p><div class="capacity-meter"><span id="capacity-meter"></span></div></article>
+    </div>
+    <div class="result-note" id="result-note" role="status"></div>
+    <div class="alert alert-warning" id="range-warning" hidden></div>
+    <article class="chart-panel">
+      <div class="chart-title"><div><p class="eyebrow">ОТ ПЕССИМИСТИЧНОГО К ОПТИМИСТИЧНОМУ</p><h3>Девять сценариев спроса</h3></div><span class="chart-unit">человек</span></div>
+      <div class="chart-key" aria-hidden="true"><span><i class="key-demand"></i> Спрос</span><span><i class="key-median"></i> Медиана</span><span><i class="key-capacity"></i> Вместимость</span></div>
+      <div class="chart-container"><canvas id="demand-chart" role="img" aria-label="Прогноз спроса по девяти квантилям; точные значения в таблице ниже"></canvas></div>
+      <details class="scenario-details"><summary>Все сценарии в таблице</summary><div class="table-scroll"><table><caption class="sr-only">Спрос и продажи по квантилям при выбранной цене</caption><thead><tr><th scope="col">Квантиль</th><th scope="col">Хотят купить</th><th scope="col">Прогноз продаж</th></tr></thead><tbody id="scenario-table"></tbody></table></div></details>
+    </article>
+    <p class="history-notice">{% if user.is_authenticated %}Расчет сохранен в <a href="{% url 'history' %}">вашей истории</a>.{% else %}<a href="{% url 'register' %}">Создайте аккаунт</a>, чтобы сохранять следующие расчеты и возвращаться к ним.{% endif %}</p>
+  </div>
+</section>
+{% endblock %}
