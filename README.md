@@ -44,8 +44,7 @@ API: `GET /api/meta/`, `POST /api/forecast/`, `POST /api/auth/{register,login,lo
 
 ## Хостинг
 
-пока не размещено :) 
-
+https://reshis-avia-d04y.onrender.com
 
 
 ## Использованные ресурсы
